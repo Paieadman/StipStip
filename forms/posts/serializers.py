@@ -15,9 +15,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'login', 'password', 'token']
+        fields = ['email', 'login', 'password', 'token', 'lastname', 'middlename', 'firstname' ]
 
     def create(self, validated_data):
+        print(validated_data)
         return User.objects.create_user(**validated_data)
 
 class LoginSerializer(serializers.Serializer):
@@ -47,7 +48,7 @@ class LoginSerializer(serializers.Serializer):
         # вернет None. Возбудить исключение в таком случае.
         if user is None:
             raise serializers.ValidationError(
-                'A user with this email and password was not found.'
+                'A user with this login and password was not found.'
             )
 
         # Django предоставляет флаг is_active для модели User. Его цель
@@ -65,3 +66,14 @@ class LoginSerializer(serializers.Serializer):
             'login': user.login,
             'token': user.token
         }
+
+# class ProfileSerializer(serializers.ModelSerializer):
+#
+#     token = serializers.CharField(max_length=255, read_only=True)
+#
+#     class Meta:
+#         model = User
+#         fields = ['email', 'login', 'lastname' ]
+#
+#     def create(self, validated_data):
+#         return User.objects.create_user(**validated_data)

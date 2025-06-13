@@ -1,11 +1,12 @@
 import json
 from dataclasses import dataclass, asdict
 
+from django.contrib.auth import logout, login
 from rest_framework import serializers, status
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -56,28 +57,32 @@ class UserVoteModelSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
 
 
-@api_view(['GET','POST'])
-def get_question(request):
-    # if request.user is not None and request.user.isauthenticated():
-    #     print("yes")
-    # else:
-    #     print("No")
-    if request.method == 'POST':
-        print(request.data)
-        serializer = UserVoteModelSerializer(data=request.data)
-        if serializer.is_valid():
-            return save_user_answer(
-                serializer.validated_data['user_id'],
-                serializer.validated_data['variant_id'],
-                serializer.validated_data['question_id'],
-            )
 
 
-            # return HttpResponse("OK1 validated")
-        else:
-            return HttpResponse("NOK")
-    else:
-        return get_and_send_next()
+# @api_view(['GET','POST'])
+# def get_question(request):
+#     # if request.user is not None and request.user.isauthenticated():
+#     #     print("yes")
+#     # else:
+#     #     print("No")
+#     # print(request.user)
+#
+#     if request.method == 'POST':
+#         print(request.data)
+#         serializer = UserVoteModelSerializer(data=request.data)
+#         if serializer.is_valid():
+#             return save_user_answer(
+#                 serializer.validated_data['user_id'],
+#                 serializer.validated_data['variant_id'],
+#                 serializer.validated_data['question_id'],
+#             )
+#
+#
+#             # return HttpResponse("OK1 validated")
+#         else:
+#             return HttpResponse("NOK")
+#     else:
+#         return get_and_send_next()
 
 def save_user_answer(user_id, variant_id, question_id=1):
     print("TODO save")
@@ -110,12 +115,12 @@ class LoginAPIView(APIView):
 
     def post(self, request):
         print(request.data)
-        user = request.data.get('user', {})
+        # user = request.data.get('user', {})
 
         # Обратите внимание, что мы не вызываем метод save() сериализатора, как
         # делали это для регистрации. Дело в том, что в данном случае нам
         # нечего сохранять. Вместо этого, метод validate() делает все нужное.
-        serializer = self.serializer_class(data=user)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         print(serializer.data)
 
@@ -131,13 +136,122 @@ class RegistrationAPIView(APIView):
     renderer_classes = (UserJSONRenderer,)
 
     def post(self, request):
-        user = request.data.get('user', {})
+        # user = request.data.get('user', {})
+        user = request.data
+        print(request.data)
+        # login = request.data.get()
 
         # Паттерн создания сериализатора, валидации и сохранения - довольно
         # стандартный, и его можно часто увидеть в реальных проектах.
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        # serializer.data['user']
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+# @api_view(['GET','POST'])
+# def get_question(request):
+#     # if request.user is not None and request.user.isauthenticated():
+#     #     print("yes")
+#     # else:
+#     #     print("No")
+#     # print(request.user)
+#
+#     if request.method == 'POST':
+#         print(request.data)
+#         serializer = UserVoteModelSerializer(data=request.data)
+#         if serializer.is_valid():
+#             return save_user_answer(
+#                 serializer.validated_data['user_id'],
+#                 serializer.validated_data['variant_id'],
+#                 serializer.validated_data['question_id'],
+#             )
+#
+#
+#             # return HttpResponse("OK1 validated")
+#         else:
+#             return HttpResponse("NOK")
+#     else:
+#         return get_and_send_next()
+
+class GetQuestionAPIView(APIView):
+    # authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthenticated]
+    # permission_classes = (AllowAny,)
+    # renderer_classes = (UserJSONRenderer,)
+    # serializer_class = LoginSerializer
+
+    def post(self, request):
+        print(request.data)
+        serializer = UserVoteModelSerializer(data=request.data)
+        if serializer.is_valid():
+            return save_user_answer(
+                serializer.validated_data['user_id'],
+                serializer.validated_data['variant_id'],
+                serializer.validated_data['question_id'],
+            )
+        else:
+            return HttpResponseBadRequest
+
+    def get(self, request):
+        return get_and_send_next()
+        # print(request.data)
+        # user = request.data.get('user', {})
+        #
+        # # Обратите внимание, что мы не вызываем метод save() сериализатора, как
+        # # делали это для регистрации. Дело в том, что в данном случае нам
+        # # нечего сохранять. Вместо этого, метод validate() делает все нужное.
+        # serializer = self.serializer_class(data=user)
+        # serializer.is_valid(raise_exception=True)
+        # print(serializer.data)
+        #
+        # # return Response({serializer.data['login'], serializer.data['token']}, status=status.HTTP_200_OK)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GetQuestionAPIView(APIView):
+    # authentication_classes = [CustomAuthentication]
+    permission_classes = [IsAuthenticated]
+    # permission_classes = (AllowAny,)
+    # renderer_classes = (UserJSONRenderer,)
+    # serializer_class = LoginSerializer
+
+    def post(self, request):
+        print(request.data)
+        print(request.user)
+        serializer = UserVoteModelSerializer(data=request.data)
+        if serializer.is_valid():
+            return save_user_answer(
+                serializer.validated_data['user_id'],
+                serializer.validated_data['variant_id'],
+                serializer.validated_data['question_id'],
+            )
+        else:
+            return HttpResponseBadRequest
+
+    def get(self, request):
+        return get_and_send_next()
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        print("logout")
+        logout(request)
+        # request.user.is_active = False
+        # request.user.save()
+        return HttpResponse(status.HTTP_204_NO_CONTENT)
+
+class ProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        response = {
+            "login" : user.login,
+            "lastname" : user.lastname,
+            "middlename" : user.middlename,
+            "firstname" : user.firstname,
+            "requests" : []
+
+        }
+        # request.user.is_active = False
+        # request.user.save()
+        return JsonResponse(response)
