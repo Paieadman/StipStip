@@ -25,8 +25,28 @@ SECRET_KEY = 'django-insecure-1or6b-0bekk_v1(kqd3086xvz--l1ei17(lh-6p0223aaf9n99
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'example.us',
+    'www.example.us',
+    'example-us.vercel.app',
+    'localhost',
+    '*'
+]
 
+CORS_ORIGIN_ALLOW_ALL = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost',
+    'https://example-us.vercel.app',
+    'https://example.us',
+    'https://www.example.us',
+    'https://www.example.us:40001',
+    'https://example.us:40001',
+    'https://0.0.0.0:40001',
+]
+CORS_ALLOW_HEADERS = [ "accept", "referer", "accept-encoding", "authorization", "content-type", "dnt", "origin", "user-agent", "x-csrftoken", "x-sessionid", "x-requested-with"]
+CORS_EXPOSE_HEADERS = ['Set-Cookie']
+
+AUTH_USER_MODEL = 'posts.User'
 
 # Application definition
 
@@ -80,7 +100,7 @@ WSGI_APPLICATION = 'forms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db1.sqlite3',
+        'NAME': BASE_DIR / 'db2.sqlite3',
     }
 }
 
