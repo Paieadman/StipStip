@@ -67,29 +67,37 @@ def genAnswers():
     q315 = genQuestion("Укажите Вашу роль в организации мероприятия")
     q32 = genQuestion("Укажите уровень благодарственного письма")
     q33 = genQuestion("Тип вовлечённости")
-
+    q4 = genQuestion("Укажите тип достижения")
+    q41 = genQuestion("Укажите какого уровня было мероприятие")
+    q411 = genQuestion("Место на мероприятии")
+    q412 = genQuestion("Место на мероприятии")
+    q413 = genQuestion("Место на мероприятии")
+    q43 = genQuestion("Укажите уровень мероприятия")
+    q431 = genQuestion("Укажите Вашу роль в организации мероприятия")
+    q432 = genQuestion("Укажите Вашу роль в организации мероприятия")
+    q433 = genQuestion("Укажите Вашу роль в организации мероприятия")
+    q434 = genQuestion("Укажите Вашу роль в организации мероприятия")
+    q435 = genQuestion("Укажите Вашу роль в организации мероприятия")
+    q5 = genQuestion("Укажите тип достижения")
+    q51 = genQuestion("Укажите уровень соревнования")
+    q511 = genQuestion("Международный уровень")
+    q5111 = genQuestion("Место на соревновании")
+    q5112 = genQuestion("Место на соревновании")
+    q5113 = genQuestion("Место на соревновании")
+    q512 = genQuestion("Всероссийский уровень")
+    q5121 = genQuestion("Место на соревновании")
+    q5122 = genQuestion("Место на соревновании")
+    q5123 = genQuestion("Место на соревновании")
+    q513 = genQuestion("Место на соревновании")
+    q52 = genQuestion("Какое спортивное звание/разряд Вы получили?")
+    q53 = genQuestion("Укажите уровень спортивного мероприятия")
     q2 = genQuestion("Укажите тип достижения")
-    q2 = genQuestion("Укажите тип достижения")
-    q2 = genQuestion("Укажите тип достижения")
-    q2 = genQuestion("Укажите тип достижения")
-    q2 = genQuestion("Укажите тип достижения")
-    q2 = genQuestion("Укажите тип достижения")
-    q2 = genQuestion("Укажите тип достижения")
-    q2 = genQuestion("Укажите тип достижения")
-    #############
-    q21 = genQuestion("Укажите тип достижения")
-    q21 = genQuestion("Укажите тип достижения")
     q21 = genQuestion("Укажите тип достижения")
     q211 = genQuestion("Укажите какого уровня было мероприятие")
-    ############
-
-
-######################
-    q11 = genQuestion("Наименование достижения")
     q3 = genQuestion("Укажите тип достижения")
-    q4 = genQuestion("Укажите Уровень соревнования")
-    q5 = genQuestion("Укажите уровень Мероприятия")
-    a1 = genAnswer("Учебная деятельность", q0, q1)
+
+
+    genAnswer("Учебная деятельность", q0, q1)
     genAnswer("Получение студентом в течение не менее 2-х следующих друг за другом промежуточных аттестаций только оценок «отлично»", q1) ##
     genAnswer("Два семестра подряд на «отлично»", q1)
     genAnswer("Три семестра подряд на «отлично»", q1)
@@ -99,10 +107,10 @@ def genAnswers():
     genAnswer("1 место", q121)
     genAnswer("2 место", q121)
     genAnswer("3 место", q121)
-    genAnswer("Всероссийского уровня", q12, q121)
-    genAnswer("1 место", q121)
-    genAnswer("2 место", q121)
-    genAnswer("3 место", q121)
+    genAnswer("Всероссийского уровня", q12, q122)
+    genAnswer("1 место", q122)
+    genAnswer("2 место", q122)
+    genAnswer("3 место", q122)
     genAnswer("Регионального, внутривузовского уровня", q12, q123)
     genAnswer("1 место", q123)
     genAnswer("2 место", q123)
@@ -179,170 +187,107 @@ def genAnswers():
     genAnswer("Фотоотчет с мероприятия", q33)
     genAnswer("Видеоотчет с мероприятия", q33)
     genAnswer("Создание фото/видео контента для социальных сетей (фотографии для визуального сопровождения текстов, короткие ролики)", q33)
-    # a4 = genAnswer("Культурно-творческая деятельность", q0)
+    genAnswer("Культурно-творческая деятельность", q0)
     #
-    # genAnswer("Получение студентом награды (приза) за результаты культурно-творческой деятельности, в том числе в рамках конкурса", q2, a4)
-    # genAnswer("Международного уровня")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Всероссийского уровня")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Регионального, внутривузовского уровня")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Публичное представление студентом созданного им произведения литературы или искусства", q2, a4)
-    # genAnswer("Систематическое участие студента в проведении (обеспечении проведения) публичной культурно-творческой деятельности (организация/участие в организации)", q2, a4)
-    # genAnswer("Организация международного мероприятия")
-    # genAnswer("главный организатор")
-    # genAnswer("член оргкомитета")
-    # genAnswer("волонтер")
-    # genAnswer("Организация всероссийского мероприятия")
-    # genAnswer("главный организатор")
-    # genAnswer("член оргкомитета")
-    # genAnswer("волонтер")
-    # genAnswer("Организация регионального или ведомственного мероприятия")
-    # genAnswer("главный организатор")
-    # genAnswer("член оргкомитета")
-    # genAnswer("волонтер")
-    # genAnswer("Организация общественно-значимого университетского мероприятия")
-    # genAnswer("главный организатор")
-    # genAnswer("член оргкомитета")
-    # genAnswer("волонтер")
-    # genAnswer("Организация общественно-значимого институтского мероприятия")
-    # genAnswer("главный организатор")
-    # genAnswer("член оргкомитета")
-    # genAnswer("волонтер")
-    # a5 = genAnswer("Спортивная деятельность", q0)
-    # genAnswer("Получение награды (приза) за результаты спортивной деятельности, осуществленной в рамках спортивных мероприятий", q2, a5)
-    # genAnswer("Международного уровня")
-    # genAnswer("Чемпионат мира")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Чемпионат Европы")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Другие международные соревнования")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Всероссийского уровня")
-    # genAnswer("Чемпионат и Кубок России")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Универсиады и Спартакиады")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Другие всероссийские соревнования")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Ведомственного и регионального уровня")
-    # genAnswer("1 место")
-    # genAnswer("2 место")
-    # genAnswer("3 место")
-    # genAnswer("Наличие спортивного звания, спортивного разряда, полученного за последний год")
-    # genAnswer("Заслуженный мастер спорта (ЗМС)")
-    # genAnswer("Мастер спорта международного класса (МСМ)")
-    # genAnswer("Мастер спорта (МС)")
-    # genAnswer("Кандидат в мастера спорта (КМС)")
-    # genAnswer("Систематическое участие обучающегося в спортивных мероприятиях", q2, a5)
-    # genAnswer("Международного уровня")
-    # genAnswer("Всероссийского уровня")
-    # genAnswer("Ведомственного и регионального уровня")
-    # genAnswer("Университетского уровня")
-    # genAnswer("Выполнение нормативов и требований золотого знака отличия ГТО", q2, a5)
+    genAnswer("Получение студентом награды (приза) за результаты культурно-творческой деятельности, в том числе в рамках конкурса", q4, q41)
+    genAnswer("Международного уровня", q41, q411)
+    genAnswer("1 место", q411)
+    genAnswer("2 место", q411)
+    genAnswer("3 место", q411)
+    genAnswer("Всероссийского уровня", q41, q412)
+    genAnswer("1 место", q412)
+    genAnswer("2 место", q412)
+    genAnswer("3 место", q412)
+    genAnswer("Регионального, внутривузовского уровня", q41, q413)
+    genAnswer("1 место", q413)
+    genAnswer("2 место", q413)
+    genAnswer("3 место", q413)
+    genAnswer("Публичное представление студентом созданного им произведения литературы или искусства", q4,)
+    genAnswer("Систематическое участие студента в проведении (обеспечении проведения) публичной культурно-творческой деятельности (организация/участие в организации)", q4, q43) #############
+    genAnswer("Организация международного мероприятия", q43, q431)
+    genAnswer("главный организатор", q431)
+    genAnswer("член оргкомитета", q431)
+    genAnswer("волонтер", q431)
+    genAnswer("Организация всероссийского мероприятия", q43, q432)
+    genAnswer("главный организатор", q432)
+    genAnswer("член оргкомитета", q432)
+    genAnswer("волонтер", q432)
+    genAnswer("Организация регионального или ведомственного мероприятия", q43, q433)
+    genAnswer("главный организатор", q433)
+    genAnswer("член оргкомитета", q433)
+    genAnswer("волонтер", q433)
+    genAnswer("Организация общественно-значимого университетского мероприятия", q43, q434)
+    genAnswer("главный организатор", q434)
+    genAnswer("член оргкомитета", q434)
+    genAnswer("волонтер", q434)
+    genAnswer("Организация общественно-значимого институтского мероприятия", q43, q435)
+    genAnswer("главный организатор", q435)
+    genAnswer("член оргкомитета", q435)
+    genAnswer("волонтер", q435)
 
-def genAnswer(str, q = None, nq = None):
+
+
+    genAnswer("Спортивная деятельность", q0)
+    genAnswer("Получение награды (приза) за результаты спортивной деятельности, осуществленной в рамках спортивных мероприятий", q5, q51)
+    genAnswer("Международного уровня", q51, q511)
+    genAnswer("Чемпионат мира", q511, q5111)
+    genAnswer("1 место", q5111)
+    genAnswer("2 место", q5111)
+    genAnswer("3 место", q5111)
+    genAnswer("Чемпионат Европы", q511, q5112)
+    genAnswer("1 место", q5112)
+    genAnswer("2 место", q5112)
+    genAnswer("3 место", q5112)
+    genAnswer("Другие международные соревнования", q511, q5113)
+    genAnswer("1 место", q5113)
+    genAnswer("2 место", q5113)
+    genAnswer("3 место", q5113)
+    genAnswer("Всероссийского уровня", q51, q512)
+    genAnswer("Чемпионат и Кубок России", q512, q5121)
+    genAnswer("1 место", q5121)
+    genAnswer("2 место", q5121)
+    genAnswer("3 место", q5121)
+    genAnswer("Универсиады и Спартакиады", q512, q5122)
+    genAnswer("1 место", q5122)
+    genAnswer("2 место", q5122)
+    genAnswer("3 место", q5122)
+    genAnswer("Другие всероссийские соревнования", q512, q5123)
+    genAnswer("1 место", q5123)
+    genAnswer("2 место", q5123)
+    genAnswer("3 место", q5123)
+    genAnswer("Ведомственного и регионального уровня", q51, q513)
+    genAnswer("1 место", q513)
+    genAnswer("2 место", q513)
+    genAnswer("3 место", q513)
+    genAnswer("Наличие спортивного звания, спортивного разряда, полученного за последний год", q5, q52)
+    genAnswer("Заслуженный мастер спорта (ЗМС)", q52)
+    genAnswer("Мастер спорта международного класса (МСМ)", q52)
+    genAnswer("Мастер спорта (МС)", q52)
+    genAnswer("Кандидат в мастера спорта (КМС)", q52)
+    genAnswer("Систематическое участие обучающегося в спортивных мероприятиях", q5, q53)
+    genAnswer("Международного уровня", q53)
+    genAnswer("Всероссийского уровня", q53)
+    genAnswer("Ведомственного и регионального уровня", q53)
+    genAnswer("Университетского уровня", q53)
+    genAnswer("Выполнение нормативов и требований золотого знака отличия ГТО", q5)
+
+def genAnswer(str, q = None, nq = None, pts=None):
     a = AnswerVariant()
     a.description = str
-    print(str)
     if q is not None:
         a.question_father_id = q.id
     if nq is not None:
-        # print(nq.id)
         a.next_question_id = nq.id
+    if pts is not None:
+        a.points = pts
     a.save()
     return a
 
 def genQuestion(str):
     a = Question()
     a.question_text = str
-    print(str)
     a.save()
     return a
-
-# def gen2(attr, QueId=None, AnsId=None):
-#     # if attr["q"] is not None:
-#     #     attr["q"].keys[0]
-#     ans = None
-#
-#
-#
-#
-#     if attr["q"] is not None:
-#         qid = genQue(attr["q"].keys[0])
-#         for ans in attr["q"]:
-#             if attr["q"]["a"] is not None:
-#                 ans = genAns(attr["q"]["a"], qid)
-#                 gen2()
-#
-#                 # genData(attr["q"]["a"], qid, AnsId)
-#         # gen2()
-#     if attr["a"] is not None:
-#         ans = genAns(attr["a"], QueId, )
-#
-#     # if attr["q"] is None and attr["a"] is not None:
-#     #     qid = genData(attr["a"], QueId)
-# def genAns(obj, qid):
-#     if obj["a"] is not None:
-#         return genData(obj["a"], qid)
-#     return
-#
-# def gen3(attr, QueId=None, AnsId=None):
-#     qid = genQue(attr.keys[0])
-#     for ans in attr.keys[0]:
-#         aa = genAns(ans, qid)
-#         if ans["q"] is not None:
-#             ab = gen3(ans["q"][0], )
-#
-#
-#
-# def genData(str, qid=None):
-#     a = AnswerVariant()
-#     a.description = str
-#     if qid is not None:
-#         print(qid)
-#         a.question_father_id = qid
-#     a.save()
-#     return a
-#     # AnswerVariant.objects.filter(question_father_id=qid)
-#
-#
-# def genQue(str):
-#     a = Question()
-#     a.question_text = str
-#     a.save()
-#     return a.id
-#
-#
-# def genGen():
-#     for key in data:
-#         print(key)
-#         print(data[key])
-#         qid = genQue(key)
-#         for v in data[key]:
-#             genData(v, qid)
-#     for obj in AnswerVariant.objects.all():
-#         print(obj.description)
-
 
 def genCheck():
     questions = Question.objects.filter(id=1).first()

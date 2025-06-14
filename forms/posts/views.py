@@ -6,13 +6,14 @@ from rest_framework import serializers, status
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view
+from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 # Create your views here.
 from .forms import CreateQuestion
-from .models import Question, AnswerVariant
+from .models import Question, AnswerVariant, Filestore, UserResponds, UserRequests
 from .renderers import UserJSONRenderer
 from .serializers import RegistrationSerializer, LoginSerializer
 
@@ -45,16 +46,17 @@ class AnswerAnswer(dict):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class UserVoteModel:
-    def __init__(self, user_id, variant_id, question_id):
-        self.user_id = user_id
+    def __init__(self, variant_id, question_id):
+        # self.user_id = user_id
         self.variant_id = variant_id
         self.question_id = question_id
 
 
 class UserVoteModelSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()
+    # user_id = serializers.IntegerField()
+    request_id = serializers.IntegerField()
     variant_id = serializers.IntegerField()
-    question_id = serializers.IntegerField()
+    # question_id = serializers.IntegerField()
 
 
 
@@ -84,12 +86,30 @@ class UserVoteModelSerializer(serializers.Serializer):
 #     else:
 #         return get_and_send_next()
 
-def save_user_answer(user_id, variant_id, question_id=1):
-    print("TODO save")
-    ans = AnswerVariant.objects.get(id=variant_id)
-    return get_and_send_next(question_id=ans.next_question_id)
+# class UserResponds(models.Model):
+#     user = ForeignKey(User, on_delete=models.CASCADE)
+#     variants = ManyToManyField(AnswerVariant)
 
-def get_and_send_next(question_id=1):
+def save_user_answer(user, variant_id, request_id,):
+    print(user)
+    print(user.id)
+    variant = AnswerVariant.objects.get(id=variant_id)
+    req = UserRequests.objects.get(id=request_id)
+    print(req)
+    print("try to create")
+    respond = UserResponds.objects.create(userrequest=req, variant=variant)
+    print("created")
+    # respond.user = user
+    # respond.variants = variant
+    # print(respond)
+    print(request_id)
+    respond.save()
+    print("TODO save")
+    # ans = AnswerVariant.objects.get(id=variant_id)
+
+    return get_and_send_next(question_id=variant.next_question_id, request_id=request_id)
+
+def get_and_send_next(request_id, question_id=1):
     if question_id is  None:
         return HttpResponse("Done")
     questions = Question.objects.get(id=question_id)
@@ -101,6 +121,7 @@ def get_and_send_next(question_id=1):
         print(var.description)
 
     ans_data = {
+        "request_id" : request_id,
         "question": questions.question_text,
         "answers": data_variants,
     }
@@ -184,17 +205,22 @@ class GetQuestionAPIView(APIView):
     def post(self, request):
         print(request.data)
         serializer = UserVoteModelSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             return save_user_answer(
-                serializer.validated_data['user_id'],
-                serializer.validated_data['variant_id'],
-                serializer.validated_data['question_id'],
+                # serializer.validated_data['user_id'],
+                user=request.user,
+                variant_id=serializer.validated_data['variant_id'],
+                # question_id=serializer.validated_data['question_id'],
+                request_id=serializer.validated_data['request_id'],
             )
         else:
             return HttpResponseBadRequest
 
     def get(self, request):
-        return get_and_send_next()
+        obj = UserRequests.objects.create(user= request.user)
+        obj.save()
+        return get_and_send_next(request_id=obj.id)
         # print(request.data)
         # user = request.data.get('user', {})
         #
@@ -208,28 +234,28 @@ class GetQuestionAPIView(APIView):
         # # return Response({serializer.data['login'], serializer.data['token']}, status=status.HTTP_200_OK)
         # return Response(serializer.data, status=status.HTTP_200_OK)
 
-class GetQuestionAPIView(APIView):
-    # authentication_classes = [CustomAuthentication]
-    permission_classes = [IsAuthenticated]
-    # permission_classes = (AllowAny,)
-    # renderer_classes = (UserJSONRenderer,)
-    # serializer_class = LoginSerializer
-
-    def post(self, request):
-        print(request.data)
-        print(request.user)
-        serializer = UserVoteModelSerializer(data=request.data)
-        if serializer.is_valid():
-            return save_user_answer(
-                serializer.validated_data['user_id'],
-                serializer.validated_data['variant_id'],
-                serializer.validated_data['question_id'],
-            )
-        else:
-            return HttpResponseBadRequest
-
-    def get(self, request):
-        return get_and_send_next()
+# class GetQuestionAPIView(APIView):
+#     # authentication_classes = [CustomAuthentication]
+#     permission_classes = [IsAuthenticated]
+#     # permission_classes = (AllowAny,)
+#     # renderer_classes = (UserJSONRenderer,)
+#     # serializer_class = LoginSerializer
+#
+#     def post(self, request):
+#         print(request.data)
+#         print(request.user)
+#         serializer = UserVoteModelSerializer(data=request.data)
+#         if serializer.is_valid():
+#             return save_user_answer(
+#                 serializer.validated_data['user_id'],
+#                 serializer.validated_data['variant_id'],
+#                 serializer.validated_data['question_id'],
+#             )
+#         else:
+#             return HttpResponseBadRequest
+#
+#     def get(self, request):
+#         return get_and_send_next()
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -249,9 +275,70 @@ class ProfileAPIView(APIView):
             "lastname" : user.lastname,
             "middlename" : user.middlename,
             "firstname" : user.firstname,
-            "requests" : []
+            "requests" : get_requests(user),
 
         }
         # request.user.is_active = False
         # request.user.save()
         return JsonResponse(response)
+
+def get_requests(user):
+    lst = UserRequests.objects.filter(user_id=user.id)
+    ppt = []
+    for request in lst:
+        val = UserResponds.objects.filter(userrequest_id=request.id)
+        req_answers = []
+        smth = {
+            "id": request.id,
+            "answers": req_answers,
+        }
+
+        ppt.append(smth)
+        for variant in val:
+            ans_variant = AnswerVariant.objects.get(id=variant.id)
+            output = {
+                "question": Question.objects.get(id=ans_variant.question_father_id).question_text,
+                "answer": ans_variant.description
+            }
+            req_answers.append(output)
+    return ppt
+
+# def get_answers_for_user(user):
+#     lst = UserRequests.objects.filter(user_id=user.id)
+#     ppt = []
+#     for request in lst:
+#         val = UserResponds.objects.filter(userrequest_id=request.id)
+#         req_answers = []
+#         smth = {
+#             "id": request.id,
+#             "answers": req_answers,
+#         }
+#
+#         ppt.append(smth)
+#         for variant in val:
+#             ans_variant = AnswerVariant.objects.get(id=variant.id)
+#             output = {
+#                 "question": Question.objects.get(id=ans_variant.question_father_id).question_text,
+#                 "answer": ans_variant.description
+#             }
+#             req_answers.append(output)
+#     return ppt
+
+class FileUploadView(APIView):
+    parser_class = [FileUploadParser,]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, filename, format=None):
+        print(request.data)
+        a = request.data['filename']
+        file = Filestore.objects.create(document=a, master=request.user)
+        file.save()
+        return Response(status=204)
+
+class ListApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        requests = get_requests(request.user)
+        return JsonResponse({"data":requests})
+

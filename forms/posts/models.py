@@ -2,7 +2,7 @@ import datetime
 
 import jwt
 from django.db import models
-from django.db.models import ForeignKey
+from django.db.models import ForeignKey, ManyToManyField, IntegerField, CharField
 from django.conf import settings
 from django.contrib.auth.models import (
 AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -10,13 +10,7 @@ AbstractBaseUser, BaseUserManager, PermissionsMixin
 from datetime import datetime, timedelta
 
 
-class Question(models.Model):
-    question_text = models.CharField()
 
-class AnswerVariant(models.Model):
-    description = models.CharField()
-    question_father = ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True, related_name='which_question')
-    next_question = ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True, related_name='next_question')
 
 class UserManager(BaseUserManager):
     def create_user(self, login, email, firstname, lastname, middlename, password=None, ):
@@ -104,5 +98,39 @@ class User(AbstractBaseUser, PermissionsMixin):
         print("payload = " + str(payload['id']))
 
         return token
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    # TODO add subdirectory by respond id
+    return 'project/{0}/{1}'.format(instance.master.id, filename)
+
+class Filestore(models.Model):
+    master = ForeignKey(User, on_delete=models.CASCADE)
+    document = models.FileField(null=True, upload_to=user_directory_path)
+
+class Question(models.Model):
+    question_text = models.CharField()
+
+class AnswerVariant(models.Model):
+    description = models.CharField()
+    question_father = ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True, related_name='which_question')
+    next_question = ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True, related_name='next_question')
+    point = IntegerField(blank=True, null=True, default=None)
+    # point = models.IntegerField(null=True)
+
+class UserRequests(models.Model):
+    user = ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, )
+    status = CharField(default="На рассмотрении")
+    file = ForeignKey(Filestore, on_delete=models.CASCADE, blank=True, null=True)
+
+class UserResponds(models.Model):
+    userrequest = ForeignKey(UserRequests, on_delete=models.CASCADE, blank=True, null=True,)
+    # user = ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True,)
+    variant = ForeignKey(AnswerVariant, on_delete=models.CASCADE, blank=True, null=True,)
+    # answer = ForeignKey(AnswerVariant, on_delete=models.CASCADE)
+    # my_array = ArrayField(models.CharField(max_length=200), blank=True, null=True)
+    # comment = models.CharField(null=True)
+
+
 
 

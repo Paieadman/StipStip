@@ -1,6 +1,9 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from . import views
-from .views import RegistrationAPIView, LoginAPIView, GetQuestionAPIView, LogoutAPIView, ProfileAPIView
+from .views import RegistrationAPIView, LoginAPIView, GetQuestionAPIView, LogoutAPIView, ProfileAPIView, FileUploadView, \
+    ListApiView
 
 app_name='posts'
 
@@ -13,5 +16,7 @@ urlpatterns = [
     path('login', LoginAPIView.as_view()),
     path('logout', LogoutAPIView.as_view()),
     path('profile', ProfileAPIView.as_view()),
+    path('list', ListApiView.as_view()),
+    path('upload/<filename>', FileUploadView.as_view(), name='file_upload'),
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
