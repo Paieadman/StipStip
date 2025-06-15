@@ -79,6 +79,16 @@ class LoginSerializer(serializers.Serializer):
             'token': user.token
         }
 
+
+class RequestNameSerializer(serializers.Serializer):
+    request_id = serializers.IntegerField()
+    name = serializers.CharField()
+
+
+class RequestCommentSerializer(serializers.Serializer):
+    request_id = serializers.IntegerField()
+    comment = serializers.CharField()
+
 # class ProfileSerializer(serializers.ModelSerializer):
 #
 #     token = serializers.CharField(max_length=255, read_only=True)

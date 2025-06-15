@@ -4,7 +4,7 @@ from django.urls import path
 from . import views
 from .views import RegistrationAPIView, LoginAPIView, GetQuestionAPIView, LogoutAPIView, ProfileAPIView, FileUploadView, \
     ListApiView, FileDownloadView, ApplicationDownloadView, DeclarationDownloadView, ApplicationUploadView, \
-    DeclarationUploadView
+    DeclarationUploadView, SetRequestNameAPIView, SetRequestCommentAPIView, ListUsersAPIView, ListRequestsAPIView
 
 app_name='posts'
 
@@ -15,6 +15,11 @@ urlpatterns = [
     path('question', GetQuestionAPIView.as_view()),
     path('registration', RegistrationAPIView.as_view()),
     path('login', LoginAPIView.as_view()),
+    path('logout', LogoutAPIView.as_view()),
+    path('request/name', SetRequestNameAPIView.as_view()),
+    path('request/comment', SetRequestCommentAPIView.as_view()),
+    path('list/user', ListUsersAPIView.as_view()),
+    path('list/request/<id>', ListRequestsAPIView.as_view()),
     path('logout', LogoutAPIView.as_view()),
     path('profile', ProfileAPIView.as_view()),
     path('list', ListApiView.as_view()),

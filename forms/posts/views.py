@@ -3,6 +3,7 @@ import os.path
 from dataclasses import dataclass, asdict
 
 from django.contrib.auth import logout, login
+from django.db.models import CharField
 from rest_framework import serializers, status
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, FileResponse
 from django.shortcuts import render, redirect
@@ -14,9 +15,9 @@ from rest_framework.views import APIView
 
 # Create your views here.
 from .forms import CreateQuestion
-from .models import Question, AnswerVariant, Filestore, UserResponds, UserRequests
+from .models import Question, AnswerVariant, Filestore, UserResponds, UserRequests, User
 from .renderers import UserJSONRenderer
-from .serializers import RegistrationSerializer, LoginSerializer
+from .serializers import RegistrationSerializer, LoginSerializer, RequestNameSerializer, RequestCommentSerializer
 from django.conf import settings
 
 
@@ -29,23 +30,26 @@ def post_new(request):
         return redirect('posts:list')
     else:
         form = CreateQuestion()
-    return render(request, 'posts/question.html', { 'form' : form})
+    return render(request, 'posts/question.html', {'form': form})
 
 
 def post_list(request):
     return render(request, 'posts/post_list.html')
+
 
 class GetQuestionResponse:
     def __init__(self, que, data):
         self.que = que,
         self.data = data,
 
+
 class AnswerAnswer(dict):
     def __init__(self, answer_id, question_text):
-        dict.__init__(self, answer_id = answer_id, question_text = question_text)
+        dict.__init__(self, answer_id=answer_id, question_text=question_text)
 
     def toJson(self):
         return json.dumps(self, default=lambda o: o.__dict__)
+
 
 class UserVoteModel:
     def __init__(self, variant_id, question_id):
@@ -61,7 +65,7 @@ class UserVoteModelSerializer(serializers.Serializer):
     # question_id = serializers.IntegerField()
 
 
-def save_user_answer(user, variant_id, request_id,):
+def save_user_answer(user, variant_id, request_id, ):
     # print(user)
     # print(user.id)
     variant = AnswerVariant.objects.get(id=variant_id)
@@ -81,8 +85,9 @@ def save_user_answer(user, variant_id, request_id,):
 
     return get_and_send_next(question_id=variant.next_question_id, request_id=request_id)
 
+
 def get_and_send_next(request_id, question_id=1):
-    if question_id is  None:
+    if question_id is None:
         return HttpResponse("Done")
     questions = Question.objects.get(id=question_id)
     for var in AnswerVariant.objects.filter(question_father_id=questions.id):
@@ -93,7 +98,7 @@ def get_and_send_next(request_id, question_id=1):
         print(var.description)
 
     ans_data = {
-        "request_id" : request_id,
+        "request_id": request_id,
         "question": questions.question_text,
         "answers": data_variants,
     }
@@ -120,6 +125,7 @@ class LoginAPIView(APIView):
         # return Response({serializer.data['login'], serializer.data['token']}, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class RegistrationAPIView(APIView):
     """
     Разрешить всем пользователям (аутентифицированным и нет) доступ к данному эндпоинту.
@@ -142,9 +148,11 @@ class RegistrationAPIView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
 class GetQuestionAPIView(APIView):
     # authentication_classes = [CustomAuthentication]
     permission_classes = [IsAuthenticated]
+
     # permission_classes = (AllowAny,)
     # renderer_classes = (UserJSONRenderer,)
     # serializer_class = LoginSerializer
@@ -165,24 +173,14 @@ class GetQuestionAPIView(APIView):
             return HttpResponseBadRequest
 
     def get(self, request):
-        obj = UserRequests.objects.create(user= request.user)
+        obj = UserRequests.objects.create(user=request.user)
         obj.save()
         return get_and_send_next(request_id=obj.id)
-        # print(request.data)
-        # user = request.data.get('user', {})
-        #
-        # # Обратите внимание, что мы не вызываем метод save() сериализатора, как
-        # # делали это для регистрации. Дело в том, что в данном случае нам
-        # # нечего сохранять. Вместо этого, метод validate() делает все нужное.
-        # serializer = self.serializer_class(data=user)
-        # serializer.is_valid(raise_exception=True)
-        # print(serializer.data)
-        #
-        # # return Response({serializer.data['login'], serializer.data['token']}, status=status.HTTP_200_OK)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         print("logout")
         logout(request)
@@ -190,20 +188,60 @@ class LogoutAPIView(APIView):
         # request.user.save()
         return HttpResponse(status.HTTP_204_NO_CONTENT)
 
+
+class SetRequestNameAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = RequestNameSerializer(data=request.data)
+        if serializer.is_valid():
+            request_id = serializer.validated_data['request_id']
+            name = serializer.validated_data['name']
+            request = UserRequests.objects.get(id=request_id)
+            request.name = name
+            request.save()
+        return HttpResponse(status.HTTP_200_OK)
+
+
+class SetRequestCommentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = RequestCommentSerializer(data=request.data)
+        if serializer.is_valid():
+            request_id = serializer.validated_data['request_id']
+            comment = serializer.validated_data['comment']
+            request = UserRequests.objects.get(id=request_id)
+            request.comment = comment
+            request.save()
+        return HttpResponse(status.HTTP_200_OK)
+
+
 class ProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
         response = {
-            "login" : user.login,
-            "lastname" : user.lastname,
-            "middlename" : user.middlename,
-            "firstname" : user.firstname,
-            "group" : user.group,
+            "login": user.login,
+            "lastname": user.lastname,
+            "middlename": user.middlename,
+            "firstname": user.firstname,
+            "group": user.group,
             "role": user.role,
             "application_id": user.application_id,
             "declaration_id": user.declaration_id,
-            "requests" : get_requests(user),
+            "requests": get_requests(user),
+        }
+        return JsonResponse(response)
+
+class ListRequestsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+        user = User.objects.get(id=id)
+        response = {
+            "requests": get_requests(user),
         }
         return JsonResponse(response)
 
@@ -219,6 +257,8 @@ def get_requests(user):
             "id": request.id,
             "uploaded_file": request.file.id,
             "status": request.status,
+            "name": request.name,
+            "comment": request.comment,
             "answers": req_answers,
         }
         # print(request.file)
@@ -226,7 +266,6 @@ def get_requests(user):
 
         ppt.append(smth)
         for respond in user_responds:
-
             print(respond.id)
             # print(variant.description)
 
@@ -240,38 +279,33 @@ def get_requests(user):
             req_answers.append(output)
     return ppt
 
-# def get_answers_for_user(user):
-#     lst = UserRequests.objects.filter(user_id=user.id)
-#     ppt = []
-#     for request in lst:
-#         val = UserResponds.objects.filter(userrequest_id=request.id)
-#         req_answers = []
-#         smth = {
-#             "id": request.id,
-#             "answers": req_answers,
-#         }
-#
-#         ppt.append(smth)
-#         for variant in val:
-#             ans_variant = AnswerVariant.objects.get(id=variant.id)
-#             output = {
-#                 "question": Question.objects.get(id=ans_variant.question_father_id).question_text,
-#                 "answer": ans_variant.description
-#             }
-#             req_answers.append(output)
-#     return ppt
+
+class ListUsersAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # request.user
+        users = User.objects.filter(role="Student")
+        user_arr = []
+        response = {"data": user_arr}
+        for user in users:
+            user_arr.append(
+                {
+                    "id": user.id,
+                    "lastname": user.lastname,
+                    "middlename": user.middlename,
+                    "firstname": user.firstname,
+                }
+            )
+            print(user.firstname)
+        return JsonResponse(user_arr, safe=False)
+
 
 class FileUploadView(APIView):
-    parser_class = [FileUploadParser,]
+    parser_class = [FileUploadParser, ]
     permission_classes = [IsAuthenticated]
 
     def put(self, request, filename, request_id, format=None):
-        # print(filename)
-        # print(request_id)
-        # # print(request_id)
-        # print(request.data)
-        # print("request")
-        # print(request.META.get('request_id'))
         in_memory_file = request.data['filename']
         file = Filestore.objects.create(
             document=in_memory_file, master=request.user, filename=filename
@@ -282,18 +316,12 @@ class FileUploadView(APIView):
         request.save()
         return Response(status=204)
 
+
 class ApplicationUploadView(APIView):
-    parser_class = [FileUploadParser,]
+    parser_class = [FileUploadParser, ]
     permission_classes = [IsAuthenticated]
 
     def put(self, request, filename, format=None):
-        # print(filename)
-        # print(request_id)
-        # # print(request_id)
-        # print(request.data)
-        # print("request")
-        # print(request.META.get('request_id'))
-
         in_memory_file = request.data['filename']
         file = Filestore.objects.create(
             document=in_memory_file, master=request.user, filename=filename
@@ -301,23 +329,14 @@ class ApplicationUploadView(APIView):
         user = request.user
         user.application_id = file.id
         user.save()
-        # file.save()
-        # request = UserRequests.objects.get(id=request_id)
-        # request.file = file
-        # request.save()
         return Response(status=204)
 
+
 class DeclarationUploadView(APIView):
-    parser_class = [FileUploadParser,]
+    parser_class = [FileUploadParser, ]
     permission_classes = [IsAuthenticated]
 
     def put(self, request, filename, format=None):
-        # print(filename)
-        # print(request_id)
-        # # print(request_id)
-        # print(request.data)
-        # print("request")
-        # print(request.META.get('request_id'))
         in_memory_file = request.data['filename']
         file = Filestore.objects.create(
             document=in_memory_file, master=request.user, filename=filename
@@ -334,28 +353,8 @@ class FileDownloadView(APIView):
 
     def get(self, request, file_id):
         file_obj = Filestore.objects.get(id=file_id)
-        print(file_obj)
-        print(file_obj.document.open())
-        # print(os.path.join(settings.MEDIA_ROOT, file_obj.document))
-        print(file_obj)
-        filename_with_extension= "file"
         return FileResponse(file_obj.document.open(), as_attachment=True, filename=file_obj.filename)
 
-        # print(filename)
-        # print(request_id)
-        # # print(request_id)
-        # print(request.data)
-        # print("request")
-        # print(request.META.get('request_id'))
-        # in_memory_file = request.data['filename']
-        # file = Filestore.objects.create(
-        #     document=in_memory_file, master=request.user
-        # )
-        # file.save()
-        # request = UserRequests.objects.get(id=request_id)
-        # request.file = file
-        # request.save()
-        # return Response(status=204)
 
 class ApplicationDownloadView(APIView):
     # parser_class = [FileUploadParser,]
@@ -367,6 +366,7 @@ class ApplicationDownloadView(APIView):
         path = os.path.join(settings.MEDIA_ROOT, name)
         response = FileResponse(open(path, 'rb'), as_attachment=True, filename=name)
         return response
+
 
 class DeclarationDownloadView(APIView):
     # parser_class = [FileUploadParser,]
@@ -385,5 +385,4 @@ class ListApiView(APIView):
 
     def get(self, request):
         requests = get_requests(request.user)
-        return JsonResponse({"data":requests})
-
+        return JsonResponse({"data": requests})

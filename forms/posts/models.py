@@ -125,6 +125,8 @@ class UserRequests(models.Model):
     user = ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, )
     status = CharField(default="На рассмотрении")
     file = ForeignKey(Filestore, on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(default="Unnamed")
+    comment = models.CharField(null=True)
 
 class UserResponds(models.Model):
     userrequest = ForeignKey(UserRequests, on_delete=models.CASCADE, blank=True, null=True,)
