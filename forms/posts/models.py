@@ -108,6 +108,7 @@ def user_directory_path(instance, filename):
 class Filestore(models.Model):
     master = ForeignKey(User, on_delete=models.CASCADE)
     document = models.FileField(null=True, upload_to=user_directory_path)
+    filename = models.CharField(null=True, default="Stub")
 
 class Question(models.Model):
     question_text = models.CharField()

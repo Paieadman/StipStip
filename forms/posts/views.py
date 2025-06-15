@@ -1,9 +1,10 @@
 import json
+import os.path
 from dataclasses import dataclass, asdict
 
 from django.contrib.auth import logout, login
 from rest_framework import serializers, status
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, FileResponse
 from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view
 from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
@@ -16,6 +17,7 @@ from .forms import CreateQuestion
 from .models import Question, AnswerVariant, Filestore, UserResponds, UserRequests
 from .renderers import UserJSONRenderer
 from .serializers import RegistrationSerializer, LoginSerializer
+from django.conf import settings
 
 
 def post_new(request):
@@ -58,37 +60,6 @@ class UserVoteModelSerializer(serializers.Serializer):
     variant_id = serializers.IntegerField()
     # question_id = serializers.IntegerField()
 
-
-
-
-# @api_view(['GET','POST'])
-# def get_question(request):
-#     # if request.user is not None and request.user.isauthenticated():
-#     #     print("yes")
-#     # else:
-#     #     print("No")
-#     # print(request.user)
-#
-#     if request.method == 'POST':
-#         print(request.data)
-#         serializer = UserVoteModelSerializer(data=request.data)
-#         if serializer.is_valid():
-#             return save_user_answer(
-#                 serializer.validated_data['user_id'],
-#                 serializer.validated_data['variant_id'],
-#                 serializer.validated_data['question_id'],
-#             )
-#
-#
-#             # return HttpResponse("OK1 validated")
-#         else:
-#             return HttpResponse("NOK")
-#     else:
-#         return get_and_send_next()
-
-# class UserResponds(models.Model):
-#     user = ForeignKey(User, on_delete=models.CASCADE)
-#     variants = ManyToManyField(AnswerVariant)
 
 def save_user_answer(user, variant_id, request_id,):
     # print(user)
@@ -171,31 +142,6 @@ class RegistrationAPIView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-# @api_view(['GET','POST'])
-# def get_question(request):
-#     # if request.user is not None and request.user.isauthenticated():
-#     #     print("yes")
-#     # else:
-#     #     print("No")
-#     # print(request.user)
-#
-#     if request.method == 'POST':
-#         print(request.data)
-#         serializer = UserVoteModelSerializer(data=request.data)
-#         if serializer.is_valid():
-#             return save_user_answer(
-#                 serializer.validated_data['user_id'],
-#                 serializer.validated_data['variant_id'],
-#                 serializer.validated_data['question_id'],
-#             )
-#
-#
-#             # return HttpResponse("OK1 validated")
-#         else:
-#             return HttpResponse("NOK")
-#     else:
-#         return get_and_send_next()
-
 class GetQuestionAPIView(APIView):
     # authentication_classes = [CustomAuthentication]
     permission_classes = [IsAuthenticated]
@@ -269,8 +215,11 @@ def get_requests(user):
         req_answers = []
         smth = {
             "id": request.id,
+            "uploaded_file": request.file.id,
             "answers": req_answers,
         }
+        # print(request.file)
+        print(request.file)
 
         ppt.append(smth)
         for respond in user_responds:
@@ -281,6 +230,7 @@ def get_requests(user):
             answer_variant = AnswerVariant.objects.get(id=respond.variant_id)
             print(answer_variant.description)
             output = {
+
                 "question": Question.objects.get(id=answer_variant.question_father_id).question_text,
                 "answer": answer_variant.description
             }
@@ -312,11 +262,82 @@ class FileUploadView(APIView):
     parser_class = [FileUploadParser,]
     permission_classes = [IsAuthenticated]
 
-    def put(self, request, filename, format=None):
-        print(request.data)
-        a = request.data['filename']
-        file = Filestore.objects.create(document=a, master=request.user)
+    def put(self, request, filename, request_id, format=None):
+        # print(filename)
+        # print(request_id)
+        # # print(request_id)
+        # print(request.data)
+        # print("request")
+        # print(request.META.get('request_id'))
+        in_memory_file = request.data['filename']
+        file = Filestore.objects.create(
+            document=in_memory_file, master=request.user, filename=filename
+        )
         file.save()
+        request = UserRequests.objects.get(id=request_id)
+        request.file = file
+        request.save()
+        return Response(status=204)
+
+
+class FileDownloadView(APIView):
+    # parser_class = [FileUploadParser,]
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request, file_id):
+        file_obj = Filestore.objects.get(id=file_id)
+        print(file_obj)
+        print(file_obj.document.open())
+        # print(os.path.join(settings.MEDIA_ROOT, file_obj.document))
+        print(file_obj)
+        filename_with_extension= "file"
+        return FileResponse(file_obj.document.open(), as_attachment=True, filename=file_obj.filename)
+
+        # print(filename)
+        # print(request_id)
+        # # print(request_id)
+        # print(request.data)
+        # print("request")
+        # print(request.META.get('request_id'))
+        # in_memory_file = request.data['filename']
+        # file = Filestore.objects.create(
+        #     document=in_memory_file, master=request.user
+        # )
+        # file.save()
+        # request = UserRequests.objects.get(id=request_id)
+        # request.file = file
+        # request.save()
+        # return Response(status=204)
+
+class ApplicationDownloadView(APIView):
+    # parser_class = [FileUploadParser,]
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        print(settings.MEDIA_ROOT)
+        os.path.join(settings.MEDIA_ROOT, )
+        file_obj = Filestore.objects.get(id=1)
+        print(file_obj)
+        print(file_obj.document.open())
+        # print(os.path.join(settings.MEDIA_ROOT, file_obj.document))
+        print(file_obj)
+        filename_with_extension= "file"
+        # return FileResponse(file_obj.document.open(), as_attachment=True, filename=file_obj.filename)
+
+        # print(filename)
+        # print(request_id)
+        # # print(request_id)
+        # print(request.data)
+        # print("request")
+        # print(request.META.get('request_id'))
+        # in_memory_file = request.data['filename']
+        # file = Filestore.objects.create(
+        #     document=in_memory_file, master=request.user
+        # )
+        # file.save()
+        # request = UserRequests.objects.get(id=request_id)
+        # request.file = file
+        # request.save()
         return Response(status=204)
 
 class ListApiView(APIView):
