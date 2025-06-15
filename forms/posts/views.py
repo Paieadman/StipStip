@@ -218,6 +218,7 @@ def get_requests(user):
         smth = {
             "id": request.id,
             "uploaded_file": request.file.id,
+            "status": request.status,
             "answers": req_answers,
         }
         # print(request.file)
