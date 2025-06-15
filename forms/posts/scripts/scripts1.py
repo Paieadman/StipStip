@@ -1,5 +1,9 @@
 from posts.models import AnswerVariant, Question
 
+from posts.models import User
+
+from posts.models import UserRequests, UserResponds
+
 arr = [
     "Учебная деятельность",
     "Научно-исследовательская деятельность",
@@ -46,6 +50,7 @@ def genQuestions():
     genQuestion("Занятое место")
 # текущее, следующее
 def genAnswers():
+    print("generating")
     q0 = genQuestion("Выберите вид деятельности")
     q1 = genQuestion("Укажите тип достижения")
     q12 = genQuestion("Укажите какого уровня было мероприятие")
@@ -156,7 +161,7 @@ def genAnswers():
     genAnswer("Участие в научной конференции (публикация тезисов РИНЦ и/или доклад)",q24)
 
 
-    a3 = genAnswer("Общественная деятельность", q0)
+    a3 = genAnswer("Общественная деятельность", q0, q3)
     genAnswer("Систематическое участие студента в проведении (обеспечении проведения) общественно значимой деятельности социального, культурного, правозащитного, общественно полезного характера, организуемой федеральной государственной образовательной организацией высшего образования или с ее участием", q3, q31)
     genAnswer("Организация международного мероприятия", q31, q311)
     genAnswer("главный организатор", q311)
@@ -187,7 +192,7 @@ def genAnswers():
     genAnswer("Фотоотчет с мероприятия", q33)
     genAnswer("Видеоотчет с мероприятия", q33)
     genAnswer("Создание фото/видео контента для социальных сетей (фотографии для визуального сопровождения текстов, короткие ролики)", q33)
-    genAnswer("Культурно-творческая деятельность", q0)
+    genAnswer("Культурно-творческая деятельность", q0, q4)
     #
     genAnswer("Получение студентом награды (приза) за результаты культурно-творческой деятельности, в том числе в рамках конкурса", q4, q41)
     genAnswer("Международного уровня", q41, q411)
@@ -226,8 +231,9 @@ def genAnswers():
     genAnswer("волонтер", q435)
 
 
-
-    genAnswer("Спортивная деятельность", q0)
+    ############
+    genAnswer("Спортивная деятельность", q0, q5)
+    ##########
     genAnswer("Получение награды (приза) за результаты спортивной деятельности, осуществленной в рамках спортивных мероприятий", q5, q51)
     genAnswer("Международного уровня", q51, q511)
     genAnswer("Чемпионат мира", q511, q5111)
@@ -305,7 +311,45 @@ def genCheck():
     #
     # for i in que:
     #     genData(i)
+def create_test_user():
+    test_user = User(
+        login="zxc",
+    email = "zxc@mail.ru",
+    lastname = "Александров",
+    middlename = "Александрович",
+    firstname = "Александр",
+    group = "322",
+        # password = "123123"
+    # role = models.CharField(max_length=255, default="Student"),
+    )
+    test_user.set_password("123123")
+    test_user.save()
+    return test_user
+
+def create_request(user):
+    obj = UserRequests.objects.create(user=user)
+    obj.save()
+    return obj
+
+def create_user_respond(variant_id, request_id):
+    variant = AnswerVariant.objects.get(id=variant_id)
+    req = UserRequests.objects.get(id=request_id)
+    respond = UserResponds.objects.create(userrequest=req, variant=variant)
+    respond.save()
+
+def general_create():
+    user = create_test_user()
+    request = create_request(user)
+    create_user_respond(variant_id= 119, request_id=request.id)
+    create_user_respond(variant_id= 120, request_id=request.id)
+    create_user_respond(variant_id= 121, request_id=request.id)
+    create_user_respond(variant_id= 126, request_id=request.id)
+    create_user_respond(variant_id= 129, request_id=request.id)
+
+
+
 
 
 genAnswers()
+general_create()
 genCheck()

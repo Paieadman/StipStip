@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, login, email, firstname, lastname, middlename, password=None, ):
+    def create_user(self, login, email, firstname, lastname, middlename, password=None, group=None):
         if login is None:
             raise TypeError('Users must have a username.')
 
@@ -26,6 +26,7 @@ class UserManager(BaseUserManager):
             firstname=firstname,
             lastname=lastname,
             middlename=middlename,
+            group=group,
         )
         user.set_password(password)
         user.save()
@@ -49,8 +50,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     lastname = models.CharField(max_length=255)
     middlename = models.CharField(max_length=255)
     firstname = models.CharField(max_length=255)
-    group = models.CharField(max_length=255)
-    # role = models.CharField(max_length=255, default="Student")
+    group = models.CharField(max_length=255, null=True,)
+    role = models.CharField(max_length=255, default="Student")
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -116,7 +117,6 @@ class AnswerVariant(models.Model):
     question_father = ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True, related_name='which_question')
     next_question = ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True, related_name='next_question')
     point = IntegerField(blank=True, null=True, default=None)
-    # point = models.IntegerField(null=True)
 
 class UserRequests(models.Model):
     user = ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, )
@@ -125,11 +125,7 @@ class UserRequests(models.Model):
 
 class UserResponds(models.Model):
     userrequest = ForeignKey(UserRequests, on_delete=models.CASCADE, blank=True, null=True,)
-    # user = ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True,)
     variant = ForeignKey(AnswerVariant, on_delete=models.CASCADE, blank=True, null=True,)
-    # answer = ForeignKey(AnswerVariant, on_delete=models.CASCADE)
-    # my_array = ArrayField(models.CharField(max_length=200), blank=True, null=True)
-    # comment = models.CharField(null=True)
 
 
 

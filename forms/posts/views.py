@@ -91,11 +91,12 @@ class UserVoteModelSerializer(serializers.Serializer):
 #     variants = ManyToManyField(AnswerVariant)
 
 def save_user_answer(user, variant_id, request_id,):
-    print(user)
-    print(user.id)
+    # print(user)
+    # print(user.id)
     variant = AnswerVariant.objects.get(id=variant_id)
+    print(variant.description)
     req = UserRequests.objects.get(id=request_id)
-    print(req)
+    # print(req)
     print("try to create")
     respond = UserResponds.objects.create(userrequest=req, variant=variant)
     print("created")
@@ -234,29 +235,6 @@ class GetQuestionAPIView(APIView):
         # # return Response({serializer.data['login'], serializer.data['token']}, status=status.HTTP_200_OK)
         # return Response(serializer.data, status=status.HTTP_200_OK)
 
-# class GetQuestionAPIView(APIView):
-#     # authentication_classes = [CustomAuthentication]
-#     permission_classes = [IsAuthenticated]
-#     # permission_classes = (AllowAny,)
-#     # renderer_classes = (UserJSONRenderer,)
-#     # serializer_class = LoginSerializer
-#
-#     def post(self, request):
-#         print(request.data)
-#         print(request.user)
-#         serializer = UserVoteModelSerializer(data=request.data)
-#         if serializer.is_valid():
-#             return save_user_answer(
-#                 serializer.validated_data['user_id'],
-#                 serializer.validated_data['variant_id'],
-#                 serializer.validated_data['question_id'],
-#             )
-#         else:
-#             return HttpResponseBadRequest
-#
-#     def get(self, request):
-#         return get_and_send_next()
-
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -275,18 +253,19 @@ class ProfileAPIView(APIView):
             "lastname" : user.lastname,
             "middlename" : user.middlename,
             "firstname" : user.firstname,
+            "group" : user.group,
             "requests" : get_requests(user),
 
         }
-        # request.user.is_active = False
-        # request.user.save()
         return JsonResponse(response)
 
 def get_requests(user):
     lst = UserRequests.objects.filter(user_id=user.id)
     ppt = []
     for request in lst:
-        val = UserResponds.objects.filter(userrequest_id=request.id)
+        user_responds = UserResponds.objects.filter(userrequest_id=request.id)
+        for each in user_responds:
+            print(each.variant_id)
         req_answers = []
         smth = {
             "id": request.id,
@@ -294,11 +273,16 @@ def get_requests(user):
         }
 
         ppt.append(smth)
-        for variant in val:
-            ans_variant = AnswerVariant.objects.get(id=variant.id)
+        for respond in user_responds:
+
+            print(respond.id)
+            # print(variant.description)
+
+            answer_variant = AnswerVariant.objects.get(id=respond.variant_id)
+            print(answer_variant.description)
             output = {
-                "question": Question.objects.get(id=ans_variant.question_father_id).question_text,
-                "answer": ans_variant.description
+                "question": Question.objects.get(id=answer_variant.question_father_id).question_text,
+                "answer": answer_variant.description
             }
             req_answers.append(output)
     return ppt

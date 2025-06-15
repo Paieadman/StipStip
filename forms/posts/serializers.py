@@ -15,7 +15,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'login', 'password', 'token', 'lastname', 'middlename', 'firstname' ]
+        fields = ['email', 'login', 'password', 'token', 'lastname', 'middlename', 'firstname', 'group' ]
 
     def create(self, validated_data):
         print(validated_data)
@@ -42,7 +42,10 @@ class LoginSerializer(serializers.Serializer):
                 'A password is required to log in.'
             )
 
-        user = authenticate(username=login, password=password)
+        print(login)
+        print(password)
+
+        user = authenticate(login=login, password=password)
 
         # Если пользователь с данными почтой/паролем не найден, то authenticate
         # вернет None. Возбудить исключение в таком случае.
