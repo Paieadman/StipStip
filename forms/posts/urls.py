@@ -3,7 +3,8 @@ from django.conf.urls.static import static
 from django.urls import path
 from . import views
 from .views import RegistrationAPIView, LoginAPIView, GetQuestionAPIView, LogoutAPIView, ProfileAPIView, FileUploadView, \
-    ListApiView, FileDownloadView, ApplicationDownloadView
+    ListApiView, FileDownloadView, ApplicationDownloadView, DeclarationDownloadView, ApplicationUploadView, \
+    DeclarationUploadView
 
 app_name='posts'
 
@@ -17,9 +18,11 @@ urlpatterns = [
     path('logout', LogoutAPIView.as_view()),
     path('profile', ProfileAPIView.as_view()),
     path('list', ListApiView.as_view()),
-    path('upload/<request_id>/<filename>', FileUploadView.as_view(), name='file_upload'),
+    path('upload/achievement/<request_id>/<filename>', FileUploadView.as_view(), name='file_upload'),
+    path('upload/application/<filename>', ApplicationUploadView.as_view(), ),
+    path('upload/declaration/<filename>', DeclarationUploadView.as_view(), ),
     path('download/<file_id>', FileDownloadView.as_view()),
     path('provide/Application', ApplicationDownloadView.as_view()),
-    path('provide/Declaration', ApplicationDownloadView.as_view()),
+    path('provide/Declaration', DeclarationDownloadView.as_view()),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

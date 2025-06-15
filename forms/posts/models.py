@@ -56,6 +56,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    application_id = models.SmallIntegerField(null=True,)
+    declaration_id = models.SmallIntegerField(null=True,)
 
     # Дополнительный поля, необходимые Django
     # при указании кастомной модели пользователя.

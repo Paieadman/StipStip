@@ -200,8 +200,10 @@ class ProfileAPIView(APIView):
             "middlename" : user.middlename,
             "firstname" : user.firstname,
             "group" : user.group,
+            "role": user.role,
+            "application_id": user.application_id,
+            "declaration_id": user.declaration_id,
             "requests" : get_requests(user),
-
         }
         return JsonResponse(response)
 
@@ -279,6 +281,51 @@ class FileUploadView(APIView):
         request.save()
         return Response(status=204)
 
+class ApplicationUploadView(APIView):
+    parser_class = [FileUploadParser,]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, filename, format=None):
+        # print(filename)
+        # print(request_id)
+        # # print(request_id)
+        # print(request.data)
+        # print("request")
+        # print(request.META.get('request_id'))
+
+        in_memory_file = request.data['filename']
+        file = Filestore.objects.create(
+            document=in_memory_file, master=request.user, filename=filename
+        )
+        user = request.user
+        user.application_id = file.id
+        user.save()
+        # file.save()
+        # request = UserRequests.objects.get(id=request_id)
+        # request.file = file
+        # request.save()
+        return Response(status=204)
+
+class DeclarationUploadView(APIView):
+    parser_class = [FileUploadParser,]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, filename, format=None):
+        # print(filename)
+        # print(request_id)
+        # # print(request_id)
+        # print(request.data)
+        # print("request")
+        # print(request.META.get('request_id'))
+        in_memory_file = request.data['filename']
+        file = Filestore.objects.create(
+            document=in_memory_file, master=request.user, filename=filename
+        )
+        user = request.user
+        user.declaration_id = file.id
+        user.save()
+        return Response(status=204)
+
 
 class FileDownloadView(APIView):
     # parser_class = [FileUploadParser,]
@@ -315,30 +362,22 @@ class ApplicationDownloadView(APIView):
 
     def get(self, request):
         print(settings.MEDIA_ROOT)
-        os.path.join(settings.MEDIA_ROOT, )
-        file_obj = Filestore.objects.get(id=1)
-        print(file_obj)
-        print(file_obj.document.open())
-        # print(os.path.join(settings.MEDIA_ROOT, file_obj.document))
-        print(file_obj)
-        filename_with_extension= "file"
-        # return FileResponse(file_obj.document.open(), as_attachment=True, filename=file_obj.filename)
+        name = "Приложение.xlsx"
+        path = os.path.join(settings.MEDIA_ROOT, name)
+        response = FileResponse(open(path, 'rb'), as_attachment=True, filename=name)
+        return response
 
-        # print(filename)
-        # print(request_id)
-        # # print(request_id)
-        # print(request.data)
-        # print("request")
-        # print(request.META.get('request_id'))
-        # in_memory_file = request.data['filename']
-        # file = Filestore.objects.create(
-        #     document=in_memory_file, master=request.user
-        # )
-        # file.save()
-        # request = UserRequests.objects.get(id=request_id)
-        # request.file = file
-        # request.save()
-        return Response(status=204)
+class DeclarationDownloadView(APIView):
+    # parser_class = [FileUploadParser,]
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        print(settings.MEDIA_ROOT)
+        name = "Заявление_на_повышенную_государственную_академическую_стипендию.pdf"
+        path = os.path.join(settings.MEDIA_ROOT, name)
+        response = FileResponse(open(path, 'rb'), as_attachment=True, filename=name)
+        return response
+
 
 class ListApiView(APIView):
     permission_classes = [IsAuthenticated]
